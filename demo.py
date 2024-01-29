@@ -46,7 +46,8 @@ def demo(config):
   vis_pcd = get_colored_point_cloud_feature(vis_pcd,
                                             feature.detach().cpu().numpy(),
                                             config.voxel_size)
-  o3d.visualization.draw_geometries([vis_pcd])
+  o3d.io.write_triangle_mesh('output.ply', vis_pcd)
+  # o3d.visualization.draw_geometries([vis_pcd])
 
 
 if __name__ == '__main__':

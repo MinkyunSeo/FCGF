@@ -114,9 +114,10 @@ def do_single_pair_evaluation(feature_path,
   trans_gth = np.linalg.inv(traj.pose)
   i = traj.metadata[0]
   j = traj.metadata[1]
+  set_name = set_name.split("-evaluation")[0]
   name_i = "%s_%03d" % (set_name, i)
   name_j = "%s_%03d" % (set_name, j)
-
+  # breakpoint()
   # coord and feat form a sparse tensor.
   data_i = np.load(os.path.join(feature_path, name_i + ".npz"))
   coord_i, points_i, feat_i = data_i['xyz'], data_i['points'], data_i['feature']
@@ -172,7 +173,9 @@ def feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoints
   recall = []
   for s in sets:
     set_name = s[0]
-    traj = read_trajectory(os.path.join(source_path, set_name + "_gt.log"))
+    # modified
+    set_name = set_name + "-evaluation"
+    traj = read_trajectory(os.path.join(source_path, set_name, "gt.log"))
     assert len(traj) > 0, "Empty trajectory file"
     results = []
     for i in range(len(traj)):
@@ -252,9 +255,9 @@ if __name__ == '__main__':
 
     model = model.to(device)
 
-    with torch.no_grad():
-      extract_features_batch(model, config, args.source, args.target, config.voxel_size,
-                             device)
+    # with torch.no_grad():
+    #   extract_features_batch(model, config, args.source, args.target, config.voxel_size,
+    #                          device)
 
   if args.evaluate_feature_match_recall:
     assert (args.target is not None)

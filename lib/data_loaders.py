@@ -548,7 +548,8 @@ class KITTINMPairDataset(KITTIPairDataset):
                manual_seed=False,
                config=None):
     if self.IS_ODOMETRY:
-      self.root = root = os.path.join(config.kitti_root, 'dataset')
+      # self.root = root = os.path.join(config.kitti_root, 'dataset')
+      self.root = root = config.kitti_root 
       random_rotation = self.TEST_RANDOM_ROTATION
     else:
       self.date = config.kitti_date

@@ -94,9 +94,17 @@ misc_arg.add_argument('--weights', type=str, default=None)
 misc_arg.add_argument('--weights_dir', type=str, default=None)
 misc_arg.add_argument('--resume', type=str, default=None)
 misc_arg.add_argument('--resume_dir', type=str, default=None)
-misc_arg.add_argument('--train_num_thread', type=int, default=2)
-misc_arg.add_argument('--val_num_thread', type=int, default=1)
-misc_arg.add_argument('--test_num_thread', type=int, default=2)
+
+# For 3D Match Training
+# misc_arg.add_argument('--train_num_thread', type=int, default=2)
+# misc_arg.add_argument('--val_num_thread', type=int, default=1)
+# misc_arg.add_argument('--test_num_thread', type=int, default=2)
+
+# For KITTI Training
+misc_arg.add_argument('--train_num_thread', type=int, default=0)
+misc_arg.add_argument('--val_num_thread', type=int, default=0)
+misc_arg.add_argument('--test_num_thread', type=int, default=0)
+
 misc_arg.add_argument('--fast_validation', type=str2bool, default=False)
 misc_arg.add_argument(
     '--nn_max_n',

@@ -1,3 +1,26 @@
+# Extra Features
+
+- Feature Visualization Module 
+
+# Feature Visualization Module (3D Match)
+
+## Usage
+
+```
+mkdir ./visualization_results
+
+./scripts/feature_to_mesh.sh <base_directory> [model] [model_type] [voxel_size]
+
+# Example (3DMatch pretrained model)
+./scripts/feature_to_mesh.sh /root/dataset/threedmatch_test/sun3d-hotel_uc-scan3 ResUNetBN2C-16feat-3conv.pth 3DMatch 0.025
+
+# Example (KITTI pretrained model)
+./scripts/feature_to_mesh.sh /root/dataset/kitti/odometry/sequences/00 ResUNetBN2C-16feat-3conv-KITTI.pth KITTI 0.025
+```
+Output Directory: `./visualization_results`  
+Output File: `./visualization_results/{subject_id}_{subject_idx}_{model_type}.ply`  
+Example: `./visualization_results/sun3d-hotel_uc-scan3_0_3DMatch.ply`
+
 # Fully Convolutional Geometric Features, ICCV, 2019
 
 Extracting geometric features from 3D scans or point clouds is the first step in applications such as registration, reconstruction, and tracking. State-of-the-art methods require computing low-level features as input or extracting patch-based features with limited receptive field. In this work, we present fully-convolutional geometric features, computed in a single pass by a 3D fully-convolutional network. We also present new metric learning losses that dramatically improve performance. Fully-convolutional geometric features are compact, capture broad spatial context, and scale to large scenes. We experimentally validate our approach on both indoor and outdoor datasets. Fully-convolutional geometric features achieve state-of-the-art accuracy without requiring prepossessing, are compact (32 dimensions), and are 600 times faster than the most accurate prior method.

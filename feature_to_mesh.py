@@ -2,6 +2,7 @@ import os
 import numpy as np
 import argparse
 import open3d as o3d
+import math
 from urllib.request import urlretrieve
 from util.visualization import get_colored_point_cloud_feature
 from util.misc import extract_features
@@ -27,10 +28,12 @@ def feature_to_mesh(config):
 
     checkpoint = torch.load(config.model)
     
-    # 3D Match Pretrained
+    conv1_size_cube = checkpoint['state_dict']['conv1.kernel'].size()[0]
+    conv1_size = round(math.pow(conv1_size_cube, 1/3))
+    out_channel_size = checkpoint['state_dict']['final.kernel'].size()[-1]
+    
+    model = ResUNetBN2C(in_channels=1, out_channels=out_channel_size, normalize_feature=True, conv1_kernel_size=conv1_size, D=3)
     # model = ResUNetBN2C(1, 16, normalize_feature=True, conv1_kernel_size=3, D=3)
-    # KITTI Pretrained
-    model = ResUNetBN2C(1, 16, normalize_feature=True, conv1_kernel_size=5, D=3)
 
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()

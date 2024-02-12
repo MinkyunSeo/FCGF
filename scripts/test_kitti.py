@@ -23,8 +23,10 @@ logging.basicConfig(
 
 
 def main(config):
+  # test_loader = make_data_loader(
+  #     config, config.test_phase, 1, num_threads=config.test_num_workers, shuffle=True)
   test_loader = make_data_loader(
-      config, config.test_phase, 1, num_threads=config.test_num_workers, shuffle=True)
+      config, config.test_phase, 1, shuffle=True)
 
   num_feats = 1
 
@@ -54,7 +56,7 @@ def main(config):
   for i in range(len(test_iter)):
     data_timer.tic()
     try:
-      data_dict = test_iter.next()
+      data_dict = next(test_iter)
     except ValueError:
       n_gpu_failures += 1
       logging.info(f"# Erroneous GPU Pair {n_gpu_failures}")
@@ -82,12 +84,12 @@ def main(config):
 
     reg_timer.tic()
     distance_threshold = config.voxel_size * 1.0
-    ransac_result = o3d.registration.registration_ransac_based_on_feature_matching(
+    ransac_result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
         pcd0, pcd1, feat0, feat1, distance_threshold,
-        o3d.registration.TransformationEstimationPointToPoint(False), 4, [
-            o3d.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
-            o3d.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
-        ], o3d.registration.RANSACConvergenceCriteria(4000000, 10000))
+        o3d.pipelines.registration.TransformationEstimationPointToPoint(False), 4, [
+            o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+            o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+        ], o3d.pipelines.registration.RANSACConvergenceCriteria(4000000, 10000))
     T_ransac = torch.from_numpy(ransac_result.transformation.astype(np.float32))
     reg_timer.toc()
 
@@ -138,7 +140,8 @@ if __name__ == '__main__':
   config.save_dir = args.save_dir
   config.test_phase = args.test_phase
   config.kitti_root = args.kitti_root
-  config.kitti_odometry_root = args.kitti_root + '/dataset'
+  # config.kitti_odometry_root = args.kitti_root + '/dataset'
+  config.kitti_odometry_root = args.kitti_root 
   config.test_num_thread = args.test_num_thread
 
   main(config)

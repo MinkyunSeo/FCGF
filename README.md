@@ -10,13 +10,17 @@
 mkdir ./visualization_results
 
 ./scripts/feature_to_mesh.sh <base_directory> [model] [model_type] [voxel_size]
+```
 
-# Example (3DMatch pretrained model)
+### Example
+```
+# 3DMatch pretrained model
 ./scripts/feature_to_mesh.sh /root/dataset/threedmatch_test/sun3d-hotel_uc-scan3 ResUNetBN2C-16feat-3conv.pth 3DMatch 0.025
 
-# Example (KITTI pretrained model)
+# KITTI pretrained model
 ./scripts/feature_to_mesh.sh /root/dataset/kitti/odometry/sequences/00 ResUNetBN2C-16feat-3conv-KITTI.pth KITTI 0.025
 ```
+
 Output Directory: `./visualization_results`  
 Output File: `./visualization_results/{subject_id}_{subject_idx}_{model_type}.ply`  
 Example: `./visualization_results/sun3d-hotel_uc-scan3_0_3DMatch.ply`

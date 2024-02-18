@@ -10,7 +10,7 @@ BASE_DIR="$1"
 MODEL="${2:-ResUNetBN2C-16feat-3conv.pth}"  # Use "ResUNetBN2C-16feat-3conv.pth" if not provided
 MODEL_TYPE="${3:-3DMatch}"  # Use "3DMatch" if not provided
 VOXEL_SIZE="${4:-0.025}"  # Use 0.025 if not provided
-FEATURE_TO_MESH_SCRIPT='feature_to_mesh.py'
+FEATURE_TO_MESH_SCRIPT='./scripts/feature_to_mesh.py'
 
 # Find all .ply files in the base directory
 PLY_FILES=("$BASE_DIR"/*.ply)

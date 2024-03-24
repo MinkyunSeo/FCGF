@@ -9,3 +9,5 @@ outputs/
 *.ply
 *.pth
 *.npz
+result.py
+features/

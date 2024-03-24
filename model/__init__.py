@@ -1,6 +1,7 @@
 import logging
 import model.simpleunet as simpleunets
 import model.resunet as resunets
+import model.resunet_multi_resolution as resunet_multi_resolutions
 
 MODELS = []
 
@@ -11,7 +12,7 @@ def add_models(module):
 
 add_models(simpleunets)
 add_models(resunets)
-
+add_models(resunet_multi_resolutions)
 
 def load_model(name):
   '''Creates and returns an instance of the model given its class name.

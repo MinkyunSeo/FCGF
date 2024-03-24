@@ -87,6 +87,12 @@ def valid_feat_ratio(pcd0, pcd1, feat0, feat1, trans_gth, thresh=0.1):
   dist = np.sqrt(((np.array(pcd0_copy.points) - np.array(pcd1.points)[inds])**2).sum(1))
   return np.mean(dist < thresh)
 
+def evaluate_rmse(pcd0, pcd1, feat0, feat1, trans_pred):
+  inds = find_nn_cpu(feat0, feat1, return_distance=False)
+  pcd0_copy = copy.deepcopy(pcd0)
+  pcd0_copy.transform(trans_pred)
+  dist = np.sqrt((((np.array(pcd0_copy.points) - np.array(pcd1.points)[inds])**2).sum(1)).mean())
+  return dist
 
 def evaluate_feature_3dmatch(pcd0, pcd1, feat0, feat1, trans_gth, inlier_thresh=0.1):
   r"""Return the hit ratio (ratio of inlier correspondences and all correspondences).
@@ -98,7 +104,6 @@ def evaluate_feature_3dmatch(pcd0, pcd1, feat0, feat1, trans_gth, inlier_thresh=
   else:
     hit = valid_feat_ratio(pcd1, pcd0, feat1, feat0, np.linalg.inv(trans_gth), inlier_thresh)
   return hit
-
 
 def get_matching_matrix(source, target, trans, voxel_size, debug_mode):
   source_copy = copy.deepcopy(source)

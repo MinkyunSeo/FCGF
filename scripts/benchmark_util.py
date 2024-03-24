@@ -16,7 +16,7 @@ def run_ransac(xyz0, xyz1, feat0, feat1, voxel_size):
           o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
           o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
       ], o3d.pipelines.registration.RANSACConvergenceCriteria(4000000, 500))
-  return result_ransac.transformation
+  return result_ransac
 
 
 def gather_results(results):
@@ -51,13 +51,17 @@ def do_single_pair_matching(feature_path, set_name, m, voxel_size):
   points_i, xyz_i, feat_i = read_data(feature_path, name_i)
   points_j, xyz_j, feat_j = read_data(feature_path, name_j)
   if len(xyz_i.points) < len(xyz_j.points):
-    trans = run_ransac(xyz_i, xyz_j, feat_i, feat_j, voxel_size)
+    result = run_ransac(xyz_i, xyz_j, feat_i, feat_j, voxel_size)
+    trans = result.transformation
   else:
-    trans = run_ransac(xyz_j, xyz_i, feat_j, feat_i, voxel_size)
+    result = run_ransac(xyz_j, xyz_i, feat_j, feat_i, voxel_size)
+    trans = result.transformation
     trans = np.linalg.inv(trans)
+  corr_set = np.asarray(result.correspondence_set)
   ratio = compute_overlap_ratio(xyz_i, xyz_j, trans, voxel_size)
   logging.info(f"{ratio}")
   if ratio > 0.3:
-    return [True, i, j, s, np.linalg.inv(trans)]
+    return [True, i, j, s, np.linalg.inv(trans)], ratio, corr_set
   else:
-    return [False, i, j, s, np.identity(4)]
+    return [False, i, j, s, np.identity(4)], ratio, corr_set
+    # return [True, i, j, s, np.linalg.inv(trans)], ratio, corr_set

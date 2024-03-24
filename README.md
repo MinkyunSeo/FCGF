@@ -1,6 +1,53 @@
-# Extra Features
+# Main Commands
 
-- Feature Visualization Module 
+## Orginal FCGF
+```
+# Feature Extraction
+python -m scripts.benchmark_3dmatch \
+    --source /root/dataset/threedmatch_test \
+    --target ./features/test \
+    --voxel_size 0.025 \
+    --model ResUNetBN2C-16feat-3conv.pth --extract_features --with_cuda 
+
+# FMR
+python -m scripts.benchmark_3dmatch \
+    --source /root/dataset/threedmatch_test \
+    --target ./features/test \
+    --voxel_size 0.025 \
+    --model ResUNetBN2C-16feat-3conv.pth --evaluate_feature_match_recall --with_cuda 
+
+# Registration
+python -m scripts.benchmark_3dmatch \
+    --source /root/dataset/threedmatch_test \
+    --target ./features/3DMatch_0.025 \
+    --voxel_size 0.025 \
+    --model ResUNetBN2C-16feat-3conv.pth --evaluate_registration --with_cuda 
+```
+
+## Multi-Resolution features
+```
+# Feature Extraction
+python -m scripts.multi_benchmark_3dmatch \
+    --source /root/dataset/threedmatch_test \
+    --target ./features/multi/3DMatch_0.025_fine \
+    --voxel_size 0.025 \
+    --model ResUNetBN2C-16feat-3conv.pth --resolution fine --extract_features --with_cuda 
+
+# FMR
+python -m scripts.multi_benchmark_3dmatch \
+    --source /root/dataset/threedmatch_test \
+    --target ./features/multi/3DMatch_0.025_fine \
+    --voxel_size 0.025 \
+    --model ResUNetBN2C-16feat-3conv.pth --resolution fine --evaluate_feature_match_recall --with_cuda 
+
+# Registration
+python -m scripts.multi_benchmark_3dmatch \
+    --source /root/dataset/threedmatch_test \
+    --target ./features/multi/3DMatch_0.025_fine \
+    --voxel_size 0.025 \
+    --model ResUNetBN2C-16feat-3conv.pth --resolution fine --evaluate_registration --with_cuda 
+
+```
 
 # Feature Visualization Module (3D Match)
 

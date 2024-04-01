@@ -16,7 +16,7 @@ from util.misc import extract_features
 from model import load_model
 from util.file import ensure_dir, get_folder_list, get_file_list
 from util.trajectory import read_trajectory, write_trajectory
-from util.pointcloud import make_open3d_point_cloud, evaluate_feature_3dmatch
+from util.pointcloud import make_open3d_point_cloud, evaluate_feature_3dmatch, compute_affinity
 from scripts.benchmark_util import do_single_pair_matching, gen_matching_pair, gather_results
 
 import torch
@@ -217,7 +217,69 @@ def feature_evaluation(source_path, feature_path, voxel_size, num_rand_keypoints
   scene_r = np.array([r[1] for r in recall])
   logging.info("average : %.4f +- %.4f" % (scene_r.mean(), scene_r.std()))
 
+def affinity(source_path, feature_path, voxel_size, num_rand_keypoints=-1):
+  with open(os.path.join(feature_path, "list.txt")) as f:
+    sets = f.readlines()
+    sets = [x.strip().split() for x in sets]
 
+  assert len(
+      sets
+  ) > 0, "Empty list file. Makesure to run the feature extraction first with --do_extract_feature."
+
+  for s in sets:
+    set_name = s[0]
+    # modified
+    set_name = set_name + "-evaluation"
+    traj = read_trajectory(os.path.join(source_path, set_name, "gt.log"))
+    assert len(traj) > 0, "Empty trajectory file"
+    results = []
+    for i in range(len(traj)):
+      results.append(
+          do_single_pair_affinity(feature_path, set_name, traj[i], voxel_size, num_rand_keypoints))
+
+def do_single_pair_affinity(feature_path,
+                              set_name,
+                              traj,
+                              voxel_size,
+                              num_rand_keypoints=-1):
+  trans_gth = np.linalg.inv(traj.pose)
+  i = traj.metadata[0]
+  j = traj.metadata[1]
+  set_name = set_name.split("-evaluation")[0]
+  name_i = "%s_%03d" % (set_name, i)
+  name_j = "%s_%03d" % (set_name, j)
+  # coord and feat form a sparse tensor.
+  data_i = np.load(os.path.join(feature_path, name_i + ".npz"))
+  coord_i, points_i, feat_i = data_i['xyz'], data_i['points'], data_i['feature']
+  data_j = np.load(os.path.join(feature_path, name_j + ".npz"))
+  coord_j, points_j, feat_j = data_j['xyz'], data_j['points'], data_j['feature']
+
+  # use the keypoints in 3DMatch
+  if num_rand_keypoints > 0:
+    # Randomly subsample N points
+    Ni, Nj = len(points_i), len(points_j)
+    inds_i = np.random.choice(Ni, min(Ni, num_rand_keypoints), replace=False)
+    inds_j = np.random.choice(Nj, min(Nj, num_rand_keypoints), replace=False)
+
+    sample_i, sample_j = points_i[inds_i], points_j[inds_j]
+
+    key_points_i = ME.utils.fnv_hash_vec(np.floor(sample_i / voxel_size))
+    key_points_j = ME.utils.fnv_hash_vec(np.floor(sample_j / voxel_size))
+
+    key_coords_i = ME.utils.fnv_hash_vec(np.floor(coord_i / voxel_size))
+    key_coords_j = ME.utils.fnv_hash_vec(np.floor(coord_j / voxel_size))
+
+    inds_i = np.where(np.isin(key_coords_i, key_points_i))[0]
+    inds_j = np.where(np.isin(key_coords_j, key_points_j))[0]
+
+    coord_i, feat_i = coord_i[inds_i], feat_i[inds_i]
+    coord_j, feat_j = coord_j[inds_j], feat_j[inds_j]
+
+  coord_i = make_open3d_point_cloud(coord_i)
+  coord_j = make_open3d_point_cloud(coord_j)
+
+  dists, inds = compute_affinity(coord_i, coord_j, feat_i, feat_j, trans_gth)
+  
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -264,6 +326,7 @@ if __name__ == '__main__':
     type=str,
     help='resolution of the model'
   )
+  parser.add_argument('--evaluate_affinity', action='store_true')
 
   args = parser.parse_args()
 
@@ -313,3 +376,8 @@ if __name__ == '__main__':
     assert (args.target is not None)
     with torch.no_grad():
       registration(args.target, args.voxel_size)
+      
+  if args.evaluate_affinity:
+    assert (args.target is not None)
+    with torch.no_grad():
+      affinity(args.source, args.target, args.voxel_size, args.num_rand_keypoints)

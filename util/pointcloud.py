@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 import open3d as o3d
-from lib.eval import find_nn_cpu
+from lib.eval import find_nn_cpu, find_nn_list_cpu
 
 
 def make_open3d_point_cloud(xyz, color=None):
@@ -93,6 +93,9 @@ def evaluate_rmse(pcd0, pcd1, feat0, feat1, trans_pred):
   pcd0_copy.transform(trans_pred)
   dist = np.sqrt((((np.array(pcd0_copy.points) - np.array(pcd1.points)[inds])**2).sum(1)).mean())
   return dist
+
+def compute_affinity(pcd0, pcd1, feat0, feat1, trans_gth):
+  dists, inds = find_nn_list_cpu(feat0, feat1, return_distance=True)
 
 def evaluate_feature_3dmatch(pcd0, pcd1, feat0, feat1, trans_gth, inlier_thresh=0.1):
   r"""Return the hit ratio (ratio of inlier correspondences and all correspondences).

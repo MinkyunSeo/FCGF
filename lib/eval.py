@@ -14,6 +14,16 @@ def find_nn_cpu(feat0, feat1, return_distance=False):
     return nn_inds, dists
   else:
     return nn_inds
+  
+def find_nn_list_cpu(feat0, feat1, return_distance=False):
+  feat1tree = cKDTree(feat1)
+  # dists, nn_inds = feat1tree.query(feat0, k=1, n_jobs=-1)
+  dists, nn_inds = feat1tree.query(feat0, k=5)
+  breakpoint()
+  if return_distance:
+    return nn_inds, dists
+  else:
+    return nn_inds
 
 
 def find_nn_gpu(F0, F1, nn_max_n=-1, return_distance=False, dist_type='SquareL2'):

@@ -378,7 +378,6 @@ if __name__ == '__main__':
       registration(args.target, args.voxel_size)
       registration_recall(args.source, args.target, args.voxel_size, args.num_rand_keypoints)
 
-  
   if args.evaluate_registration_recall:
     assert (args.target is not None)
     with torch.no_grad():

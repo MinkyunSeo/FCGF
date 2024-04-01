@@ -4,7 +4,7 @@ import logging
 import numpy as np
 
 from util.trajectory import CameraPose
-from util.pointcloud import compute_overlap_ratio, \
+from util.pointcloud import compute_overlap_ratio,\
     make_open3d_point_cloud, make_open3d_feature_from_numpy
 
 

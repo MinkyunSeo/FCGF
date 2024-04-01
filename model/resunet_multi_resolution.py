@@ -184,15 +184,15 @@ class ResUNet2(ME.MinkowskiNetwork):
     
     out = self.conv1_tr(out)
     out = MEF.relu(out)
-    out = self.final(out) #fine
+    out_final = self.final(out) #fine
     
     # print("input shape: ", x.shape)
     # print("coarse shape: ", out_s2_tr.shape)
     # print("mid shape: ", out_s1_tr.shape)
     # print("fine shape: ", out.shape)
-    
     if self.resolution == 'fine':
-      out = out
+      # out shape: torch.Size([20685, 16])
+      out = out_final
     elif self.resolution == 'mid': 
       # out_s1_tr shape: torch.Size([20685, 64])
       # out shape: torch.Size([20685, 16])
@@ -204,7 +204,7 @@ class ResUNet2(ME.MinkowskiNetwork):
 
     elif self.resolution == 'coarse':
       # out_s2_tr shape: torch.Size([5322, 64])
-      # out shape: torch.Size([20685, 16])
+      # out shape: torch.Size([20685, 64])
       unpool = ME.MinkowskiPoolingTranspose(kernel_size=3, stride=2, dimension=3)
       out = unpool(out_s2_tr)  
       
@@ -212,7 +212,13 @@ class ResUNet2(ME.MinkowskiNetwork):
       # tmp = unpool(out_s2_tr)
       # avg_feat = tmp.F.view(-1, 4, 16).mean(dim=1).view(-1, 16)
       # out = ME.SparseTensor(features=avg_feat, coordinate_map_key=tmp.coordinate_map_key, coordinate_manager=tmp.coordinate_manager)
+    elif self.resolution == 'concat': 
+      unpool = ME.MinkowskiPoolingTranspose(kernel_size=3, stride=2, dimension=3)
+      out_s2_tr_unpool = unpool(out_s2_tr) 
       
+      tmp = ME.cat(out_s2_tr_unpool, out_s1_tr)
+      out = ME.cat(tmp, out_final)
+
     if self.normalize_feature:
       return ME.SparseTensor(
           out.F / torch.norm(out.F, p=2, dim=1, keepdim=True),

@@ -39,7 +39,7 @@ echo "Git diff" | tee -a $LOG
 echo "" | tee -a $LOG
 git diff | tee -a $LOG
 echo "" | tee -a $LOG
-nvidia-smi | tee -a $LOG
+# nvidia-smi | tee -a $LOG
 
 # Training
 python train.py \
@@ -61,7 +61,7 @@ python train.py \
 	--hit_ratio_thresh 0.3 \
 	$MISC_ARGS 2>&1 | tee -a $LOG
 
-# Test
-python -m scripts.test_kitti \
-	--kitti_root ${KITTI_PATH} \
-	--save_dir ${OUT_DIR} | tee -a $LOG
+# # Test
+# python -m scripts.test_kitti \
+# 	--kitti_root ${KITTI_PATH} \
+# 	--save_dir ${OUT_DIR} | tee -a $LOG

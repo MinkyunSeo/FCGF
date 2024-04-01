@@ -89,5 +89,4 @@ def extract_features(model,
   coords = torch.tensor(coords, dtype=torch.int32)
 
   stensor = ME.SparseTensor(feats, coordinates=coords, device=device)
-
   return return_coords, model(stensor).F
